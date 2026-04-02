@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>For Motuuu 💌</title>
+  <style>
+    :root{
+      --pink:#ff4d88;
+      --pink2:#ff77aa;
+      --bg1:#ffe6f0;
+      --bg2:#ffffff;
+      --text:#222;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background: radial-gradient(circle at top, var(--bg1), var(--bg2));
+      overflow:hidden;
+    }
+    .wrap{
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      padding:20px;
+      position:relative;
+      z-index:1;
+    }
+    .card{
+      width:min(560px, 94vw);
+      background: rgba(255,255,255,0.92);
+      border:1px solid #ffd1e3;
+      border-radius:22px;
+      padding:28px 18px;
+      box-shadow: 0 16px 40px rgba(255, 77, 136, 0.18);
+      text-align:center;
+      backdrop-filter: blur(6px);
+    }
+    h1{margin:0 0 10px; font-size: clamp(24px, 5vw, 34px);}
+    p{margin:0 0 18px; opacity:.85; line-height:1.35}
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:13px 18px;
+      border-radius:999px;
+      border:0;
+      background: linear-gradient(135deg, var(--pink), var(--pink2));
+      color:#fff;
+      font-weight:800;
+      letter-spacing:.2px;
+      font-size:16px;
+      box-shadow: 0 10px 20px rgba(255, 77, 136, 0.28);
+      cursor:pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn:active{ transform: translateY(1px); }
+    .tiny{margin-top:10px; font-size:13px; opacity:.7}
+
+    /* Modal */
+    .overlay{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.28);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      z-index:50;
+    }
+    .overlay.show{ display:flex; }
+    .modal{
+      width:min(520px, 96vw);
+      background:#fff;
+      border-radius:20px;
+      border:1px solid #ffd1e3;
+      box-shadow: 0 20px 60px rgba(0,0,0,.25);
+      padding:18px 16px 14px;
+      position:relative;
+      transform: translateY(8px);
+      animation: pop .18s ease-out forwards;
+    }
+    @keyframes pop{
+      to { transform: translateY(0); }
+    }
+    .modal h2{
+      margin:6px 0 10px;
+      font-size: 20px;
+    }
+    .msg{
+      background: #fff5fa;
+      border:1px dashed #ffb3cf;
+      padding:14px 12px;
+      border-radius:16px;
+      line-height:1.45;
+      font-size:16px;
+      white-space:pre-wrap;
+    }
+    .row{
+      display:flex;
+      gap:10px;
+      justify-content:flex-end;
+      margin-top:12px;
+      flex-wrap:wrap;
+    }
+    .btn2{
+      padding:10px 14px;
+      border-radius:999px;
+      border:1px solid #ffd1e3;
+      background:#fff;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .btnPrimary{
+      background: var(--pink);
+      color:#fff;
+      border-color: transparent;
+    }
+    .x{
+      position:absolute;
+      right:10px; top:8px;
+      width:36px; height:36px;
+      border-radius:50%;
+      border:1px solid #ffd1e3;
+      background:#fff;
+      cursor:pointer;
+      font-size:18px;
+      line-height:34px;
+    }
+
+    /* Photo in modal */
+    #bfPhoto{
+      width: 100%;
+      max-height: 320px;
+      object-fit: cover;
+      border-radius: 16px;
+      border: 1px solid #ffd1e3;
+      margin: 6px 0 12px;
+      display:block;
+    }
+
+    /* Floating hearts */
+    .heart{
+      position:fixed;
+      left:0; top:0;
+      font-size: 18px;
+      pointer-events:none;
+      opacity:.9;
+      z-index:10;
+      animation: floatUp linear forwards;
+      filter: drop-shadow(0 6px 10px rgba(255, 77, 136, .18));
+    }
+    @keyframes floatUp{
+      from { transform: translate(var(--x), 110vh) scale(var(--s)) rotate(0deg); opacity:0; }
+      10% { opacity:.95; }
+      to { transform: translate(calc(var(--x) + var(--drift)), -18vh) scale(var(--s)) rotate(25deg); opacity:0; }
+    }
+
+    /* Confetti canvas */
+    canvas#confetti{
+      position:fixed;
+      inset:0;
+      width:100%;
+      height:100%;
+      pointer-events:none;
+      z-index:60;
+      display:none;
+    }
+    canvas#confetti.show{ display:block; }
+  </style>
+</head>
+<body>
+  <canvas id="confetti"></canvas>
+
+  <div class="wrap">
+    <div class="card">
+      <h1>Motuuu 👀</h1>
+      <p>Tap this. It’s important. (Like… cute-important.)</p>
+
+      <button class="btn" id="open">
+        <span>Open my message</span>
+        <span aria-hidden="true">💗</span>
+      </button>
+
+      <div class="tiny">Tiny surprise + hearts + confetti. You’ve been warned.</div>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-label="Cute message">
+    <div class="modal">
+      <button class="x" id="closeX" aria-label="Close">×</button>
+
+      <img id="bfPhoto" alt="Motuuu" />
+
+      <h2>You clicked this? 👀</h2>
+      <div class="msg" id="message"></div>
+
+      <div class="row">
+        <button class="btn2" id="copy">Copy</button>
+        <button class="btn2 btnPrimary" id="close">Aww okay</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Put his photo file next to index.html in the SAME folder:
+    // e.g. motuuu.jpg (recommended)
+    const BF_PHOTO_SRC = "motuuu.jpg"; // change if your filename is different
+
+    const YOUR_MESSAGE =
+`That means you’re thinking about me…
+
+Good.
+Because I’m always thinking about you 🫶🥺
+
+(Also: you’re my favorite person. Like, by a lot.)
+
+— yours 💗`;
+
+    const overlay = document.getElementById('overlay');
+    const openBtn  = document.getElementById('open');
+    const closeBtn = document.getElementById('close');
+    const closeX   = document.getElementById('closeX');
+    const msgEl    = document.getElementById('message');
+    const copyBtn  = document.getElementById('copy');
+    const photoEl  = document.getElementById('bfPhoto');
+
+    msgEl.textContent = YOUR_MESSAGE;
+    photoEl.src = BF_PHOTO_SRC;
+
+    function showModal(){
+      overlay.classList.add('show');
+      startHearts(18);
+      confettiBurst();
+    }
+    function hideModal(){
+      overlay.classList.remove('show');
+    }
+
+    openBtn.addEventListener('click', showModal);
+    closeBtn.addEventListener('click', hideModal);
+    closeX.addEventListener('click', hideModal);
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) hideModal();
+    });
+
+    copyBtn.addEventListener('click', async () => {
+      try{
+        await navigator.clipboard.writeText(YOUR_MESSAGE);
+        copyBtn.textContent = "Copied!";
+        setTimeout(() => copyBtn.textContent = "Copy", 900);
+      } catch {
+        copyBtn.textContent = "Can’t copy";
+        setTimeout(() => copyBtn.textContent = "Copy", 900);
+      }
+    });
+
+    // Hearts
+    let heartInterval = null;
+
+    function makeHeart(){
+      const heart = document.createElement('div');
+      heart.className = 'heart';
+
+      const hearts = ['💗','💖','💘','💝','💕','💞'];
+      heart.textContent = hearts[(Math.random()*hearts.length)|0];
+
+      const x = Math.random() * 100;
+      const s = 0.7 + Math.random()*1.2;
+      const drift = (-30 + Math.random()*60) + 'vw';
+      const dur = 5 + Math.random()*4;
+
+      heart.style.setProperty('--x', x + 'vw');
+      heart.style.setProperty('--s', s);
+      heart.style.setProperty('--drift', drift);
+      heart.style.animationDuration = dur + 's';
+
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), dur*1000);
+    }
+
+    function startHearts(burstCount = 0){
+      for (let i=0; i<burstCount; i++) setTimeout(makeHeart, i*40);
+
+      if (heartInterval) return;
+      heartInterval = setInterval(makeHeart, 650);
+
+      setTimeout(() => {
+        clearInterval(heartInterval);
+        heartInterval = null;
+      }, 15000);
+    }
+
+    // Confetti
+    const canvas = document.getElementById('confetti');
+    const ctx = canvas.getContext('2d');
+
+    function resize(){
+      const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+      canvas.width = Math.floor(innerWidth * dpr);
+      canvas.height = Math.floor(innerHeight * dpr);
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    let confetti = [];
+    let raf = null;
+
+    function confettiBurst(){
+      canvas.classList.add('show');
+
+      const colors = ['#ff4d88','#ff77aa','#ffd1e3','#7dd3fc','#a7f3d0','#fde68a'];
+      const count = 160;
+
+      confetti = Array.from({length: count}, () => ({
+        x: innerWidth/2 + (Math.random()*120 - 60),
+        y: innerHeight/2 + (Math.random()*60 - 30),
+        vx: (Math.random()*8 - 4),
+        vy: (Math.random()*-10 - 4),
+        g: 0.22 + Math.random()*0.08,
+        w: 6 + Math.random()*8,
+        h: 3 + Math.random()*6,
+        rot: Math.random()*Math.PI,
+        vr: (Math.random()*0.25 - 0.125),
+        color: colors[(Math.random()*colors.length)|0],
+        life: 120 + (Math.random()*50|0)
+      }));
+
+      if (raf) cancelAnimationFrame(raf);
+      animateConfetti();
+    }
+
+    function animateConfetti(){
+      ctx.clearRect(0,0,innerWidth,innerHeight);
+
+      confetti.forEach(p => {
+        p.life--;
+        p.vy += p.g;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rot += p.vr;
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+        ctx.restore();
+      });
+
+      confetti = confetti.filter(p => p.life > 0 && p.y < innerHeight + 40);
+
+      if (confetti.length){
+        raf = requestAnimationFrame(animateConfetti);
+      } else {
+        canvas.classList.remove('show');
+        ctx.clearRect(0,0,innerWidth,innerHeight);
+        raf = null;
+      }
+    }
+
+    // a few hearts on load (optional)
+    startHearts(3);
+  </script>
+</body>
+</html>
